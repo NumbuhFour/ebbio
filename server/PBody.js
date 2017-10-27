@@ -10,6 +10,12 @@ class PBody{
         this.mass = mass || 10;
         this.density = 1;
 
+        // Percentage each tick to decrease speed when over limit
+        this.overageDampening = 1;
+
+        // Speed limit override;
+        this.overrideLimit = undefined;
+
         this.collider = global.COLLIDER.CIRCLE;
     }
 
@@ -21,14 +27,23 @@ class PBody{
         f.x /= this.mass;
         f.y /= this.mass;
         this.accel.add(f);
+
     }
 
     move(limit){
+        if (this.overrideLimit != undefined)
+            limit = this.overrideLimit;
+
         this.vel.add(this.accel);
 
         // Limit velocity
-        if(this.vel.magnitude() > limit) 
-            this.vel.normalize().multiply(new Victor(limit, limit));
+        const mag = this.vel.magnitude();
+        if(mag > limit) {
+            this.vel.normalize();
+            const dampenedMag = mag - (mag - limit)*this.overageDampening;
+            this.vel.x *= dampenedMag;
+            this.vel.y *= dampenedMag;
+        }
 
         this.loc.add(this.vel);
 
