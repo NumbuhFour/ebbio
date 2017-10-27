@@ -37,6 +37,8 @@ class World{
 
     playerClicked(socket, data){
         console.log(socket.id + ' clicked.');
+        let pworld = this.findWorldByPlayerId(socket.id);
+        pworld.players[socket.id].onClick(data);
     }
 
     playerDisconnect(socket, data){

@@ -28,6 +28,8 @@
 
     let gameData;
 
+    let playerLoc;
+
     // Useful debug stuff
     let acceptingUserInput = true;
 
@@ -48,17 +50,26 @@
 
         socket.on('update', (data) => {
             gameData = data;
+            let p = gameData.players[socket.id];
+            playerLoc = p.pbody.loc;
         });
 
         // Input Event Handlers
         canvas.onmouseup = (e) => {
-            socket.emit('mouseClick', {x: e.clientX, y: e.clientY});
+            console.log('clickvec ', calcPointerLocation({
+                x: e.clientX,
+                y: e.clientY,
+            }));
+            socket.emit('mouseClick', calcPointerLocation({
+                x: e.clientX,
+                y: e.clientY,
+            }));
         }
 
         canvas.onmousemove = (e) => {
             if(!acceptingUserInput) return;
-            socket.emit('mouseMove', 
-                {   x: e.clientX, 
+            socket.emit('mouseMove',
+                {   x: e.clientX,
                     y: e.clientY,
                     w: canvas.width,
                     h: canvas.height });
@@ -102,7 +113,19 @@
         window.requestAnimationFrame(draw.bind(this));
     };
 
+    const calcPointerLocation = (mouse) => {
+
+        // Camera coords in world space
+        let cameraLoc = { x: playerLoc.x + canvas.width/2, y: playerLoc.y + canvas.height/2 };
+        // Mouse coords in world space
+        let mouseLoc = { x: cameraLoc.x - mouse.x, y: cameraLoc.y - mouse.y };
+        // Vector from player to mouse
+        let playerToMouse = { x: playerLoc.x - mouseLoc.x, y: playerLoc.y - mouseLoc.y };
+
+        return playerToMouse;
+    }
+
     window.onload = init;
 </script>
-    
+
 </html>
