@@ -1,6 +1,9 @@
 let PBody = require('./PBody.js').PBody;
 let Victor = require('victor');
 
+//@temp
+const Dash = require('./abilities/dash').DashAbility;
+
 const PLAYER_STATE = {
     'DEFAULT': 0,
     'INVULNERABLE': 1
@@ -16,9 +19,13 @@ class Player{
         this.speed = 10;
         this.maxSpeed = 10;
 
+        this.dash = new Dash();
+
         // Event/input handlers
         this._onCollision = undefined;
-        this._onClick = undefined;
+        this._onClick = (mouseVector) => {
+          this.dash.dash(this, new Victor(mouseVector.x, mouseVector.y));//???
+        };
         this._onRightClick = undefined;
     }
 
@@ -60,6 +67,7 @@ class Player{
 
     update(){
         this.pbody.move(this.maxSpeed);
+        this.dash.update(this);
     }
 }
 
